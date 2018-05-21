@@ -1,0 +1,38 @@
+{
+  "name": "aguage/oauth2",
+  "description": "专注 oauth2 的登陆扩展包",
+  "keywords": [
+    "weibo",
+    "wechat",
+    "login",
+    "oauth2"
+  ],
+  "support": {
+    "issues": "https://github.com/aguage/oauth2/issues",
+    "source": "https://github.com/aguage/oauth2"
+  },
+  "authors": [
+    {
+      "name": "aguage",
+      "email": "aguage@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.6",
+    "guzzlehttp/guzzle": "^6.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.7.27"
+  },
+  "autoload": {
+    "psr-4": {
+      "Aguage\\Oauth2\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Aguage\\Oauth2\\Tests\\": "tests"
+    }
+  },
+  "license": "MIT"
+}
