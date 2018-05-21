@@ -71,17 +71,14 @@ abstract class Wechat implements GatewayInterface
         $this->user_config = new Config($config);
 
         $this->config = [
-            'appid'      => $this->user_config->get('app_id', ''),
-            'mch_id'     => $this->user_config->get('mch_id', ''),
-           // 'nonce_str'  => $this->createNonceStr(),
+            'app_id'      => $this->user_config->get('app_id', ''),
+            'app_secret'     => $this->user_config->get('app_secret', ''),
+            'call_back_url'  => $this->user_config->get('call_back_url', ''),
           //  'sign_type'  => 'MD5',
           //  'notify_url' => $this->user_config->get('notify_url', ''),
           //  'trade_type' => $this->getTradeType(),
         ];
 
-        if ($endpoint = $this->user_config->get('endpoint_url')) {
-            $this->endpoint = $endpoint;
-        }
     }
 
     /**
@@ -156,7 +153,7 @@ abstract class Wechat implements GatewayInterface
      */
     protected function buildAuthUrlFromBase($url, $state)
     {
-        $query = http_build_query($this->getCodeFields($state), '', '&', $this->encodingType);
+        $query = http_build_query($this->getCodeFields($state), '', '&');
         return $url.'?'.$query.'#wechat_redirect';
     }
 
@@ -165,9 +162,7 @@ abstract class Wechat implements GatewayInterface
      */
     protected function getCodeFields($state = null)
     {
-       /* if ($this->component) {
-            $this->with(['component_appid' => $this->component->getAppId()]);
-        }
+
         return array_merge([
             'appid' => $this->clientId,
             'redirect_uri' => $this->redirectUrl,
@@ -175,30 +170,11 @@ abstract class Wechat implements GatewayInterface
             'scope' => $this->formatScopes($this->scopes, $this->scopeSeparator),
             'state' => $state ?: md5(time()),
             'connect_redirect' => 1,
-        ], $this->parameters);*/
+        ], $this->parameters);
     }
 
 
-    //1获取Authorization Code
-    public function getAuthCode()
-    {
-        $url = "https://open.weixin.qq.com/connect/qrconnect";
-        $param['appid'] = $this->app_id;
-        $param['redirect_uri'] = $this->callBackUrl;
-        $param['response_type'] = 'code';
-        $param['scope'] = "snsapi_login";
-        //-------生成唯一随机串防CSRF攻击
-        $state = md5(uniqid(rand(), TRUE));
-        $_SESSION['wx_state'] = $state;
-        $param['state'] = $state;
-        // http_build_query创建一个编码后的url参数
-        $param = http_build_query($param, '', '&');
-        $url = $url . "?" . $param . '#wechat_redirect';
-        header("Location:" . $url);
-        exit;
 
-
-    }
 
 
 
