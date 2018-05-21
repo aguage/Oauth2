@@ -13,5 +13,10 @@ namespace Aguage\Oauth2\Gateway\Wechat;
 
 class AppGateway extends Wechat
 {
-
+    /**
+     * The base url of WeChat API.
+     *
+     * @var string
+     */
+    protected $baseUrl = 'https://api.weixin.qq.com/sns';
 }

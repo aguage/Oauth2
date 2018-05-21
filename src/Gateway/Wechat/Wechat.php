@@ -17,30 +17,37 @@ abstract class Wechat implements GatewayInterface
 {
     use HasHttpRequest;
 
-    /**
-     * @var string
-     */
-    protected $endpoint = 'https://api.mch.weixin.qq.com/';
 
     /**
+     * The base url of WeChat API.
+     *
      * @var string
      */
-    protected $gateway_order = 'pay/unifiedorder';
+    protected $baseUrl = 'https://api.weixin.qq.com/sns/oauth2';
 
     /**
+     * 获取assess_token
      * @var string
      */
-    protected $gateway_query = 'pay/orderquery';
+    protected $gateway_access_token = 'access_token';
 
     /**
+     * 刷新assess_token
      * @var string
      */
-    protected $gateway_close = 'pay/closeorder';
+    protected $gateway_refresh_token = 'refresh_token';
 
     /**
+     * 检查assess_token
      * @var string
      */
-    protected $gateway_refund = 'secapi/pay/refund';
+    protected $gateway_auth = 'auth';
+
+    /**
+     * 获取获取用户信息
+     * @var string
+     */
+    protected $gateway_userinfo = 'userinfo';
 
     /**
      * @var array
@@ -92,7 +99,7 @@ abstract class Wechat implements GatewayInterface
     }
 
     /**
-     * close a order.
+     *  2通过Authorization Code获取Access Token
      *
      * @author yansongda <me@yansongda.cn>
      *
@@ -102,7 +109,18 @@ abstract class Wechat implements GatewayInterface
      */
     public function getAccessToken($config_biz)
     {
-        // TODO: Implement getAccessToken() method.
+        $url = "https://api.weixin.qq.com/sns/oauth2/access_token";
+        $param['grant_type'] = "authorization_code";
+
+        $param['appid'] = $this->app_id;
+        $param['secret'] = $this->app_secret;
+
+        $param['code'] = $this->code;
+        $param['grant_type'] = 'authorization_code';
+        $param = http_build_query($param, '', '&');
+        $url = $url . "?" . $param;
+        // halt($url);
+        return $this->getUrl($url);
     }
 
     /**
@@ -132,4 +150,93 @@ abstract class Wechat implements GatewayInterface
     {
         // TODO: Implement getUserInfo() method.
     }
+
+    /**
+     * {@inheritdoc}.
+     */
+    protected function buildAuthUrlFromBase($url, $state)
+    {
+        $query = http_build_query($this->getCodeFields($state), '', '&', $this->encodingType);
+        return $url.'?'.$query.'#wechat_redirect';
+    }
+
+    /**
+     * {@inheritdoc}.
+     */
+    protected function getCodeFields($state = null)
+    {
+       /* if ($this->component) {
+            $this->with(['component_appid' => $this->component->getAppId()]);
+        }
+        return array_merge([
+            'appid' => $this->clientId,
+            'redirect_uri' => $this->redirectUrl,
+            'response_type' => 'code',
+            'scope' => $this->formatScopes($this->scopes, $this->scopeSeparator),
+            'state' => $state ?: md5(time()),
+            'connect_redirect' => 1,
+        ], $this->parameters);*/
+    }
+
+
+    //1获取Authorization Code
+    public function getAuthCode()
+    {
+        $url = "https://open.weixin.qq.com/connect/qrconnect";
+        $param['appid'] = $this->app_id;
+        $param['redirect_uri'] = $this->callBackUrl;
+        $param['response_type'] = 'code';
+        $param['scope'] = "snsapi_login";
+        //-------生成唯一随机串防CSRF攻击
+        $state = md5(uniqid(rand(), TRUE));
+        $_SESSION['wx_state'] = $state;
+        $param['state'] = $state;
+        // http_build_query创建一个编码后的url参数
+        $param = http_build_query($param, '', '&');
+        $url = $url . "?" . $param . '#wechat_redirect';
+        header("Location:" . $url);
+        exit;
+
+
+    }
+
+
+
+
+
+    /**
+     * 4获取qq详细信息
+     * @return bool|mixed
+     * @throws WechatException
+     */
+    public function getUsrInfo()
+    {
+        /* if ($_GET['state'] != $_SESSION['wx_state']) {
+             throw new WechatException('state检验失败！',300001);
+        }*/// 注释这个代表是采用app发送的请求
+
+        if (isset($_GET['code'])==false){
+            throw new WechatException('用户取消授权',300002);
+        }
+        $this->code = $_GET['code'];
+
+        $rzt = $this->getAccessToken();
+
+        $data = json_decode($rzt,true);
+        if (empty($data)||isset($data['errcode'])) {
+            throw new WechatException('获取access_token失败');
+        }
+        $url = "https://api.weixin.qq.com/sns/userinfo";
+
+        $param['access_token'] = $data['access_token'];
+        $param['openid'] = $data['openid'];
+        $param = http_build_query($param, '', '&');
+        $url = $url . "?" . $param;
+        $rzt = $this->getUrl($url);
+        $rzt = json_decode($rzt);
+        //halt($rzt);
+        return $rzt;
+    }
+
+
 }
