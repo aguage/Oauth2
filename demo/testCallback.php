@@ -2,9 +2,10 @@
 /**
  * Created by PhpStorm.
  * User: MaiShang
- * Date: 5/21/2018
- * Time: 3:18 PM
+ * Date: 5/22/2018
+ * Time: 10:48 AM
  */
+
 require_once __DIR__ . '/../vendor/autoload.php';
 $config = [
     'wechat' => [
@@ -19,8 +20,9 @@ $config_bzg = [
 ];
 $oauth2 = new \Aguage\Oauth2\Oauth2($config);
 
+// 第一步 获取code ，只有app端的不用，其他端都要，每个端获取code的url和参数都不一样，这个要能够配置
 //$auth = $oauth2->driver('wechat')->gateway('web')->redirect('snsapi_login');
 
-$callback = $oauth2->driver('wechat')->gateway('web')->getAccessToken($config);
-print_r($callback);
-
+// 微信回调 得到code后的操作，如获取access_token，用户信息等
+$user = $oauth2->driver('wechat')->gateway('web')->getUserInfo();
+print_r($user);

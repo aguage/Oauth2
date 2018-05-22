@@ -10,8 +10,10 @@ namespace Aguage\Oauth2\Gateway\Wechat;
 
 
 use Aguage\Oauth2\Contract\GatewayInterface;
+use Aguage\Oauth2\Exception\Exception;
 use Aguage\Oauth2\Support\Config;
 use Aguage\Oauth2\Traits\HasHttpRequest;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class Wechat implements GatewayInterface
 {
@@ -60,40 +62,53 @@ abstract class Wechat implements GatewayInterface
     protected $user_config;
 
     /**
+     * The HTTP request instance.
+     *
+     * @var \Symfony\Component\HttpFoundation\Request
+     */
+    protected $request;
+
+    /**
      * [__construct description].
      *
      * @author yansongda <me@yansongda.cn>
      *
      * @param array $config
      */
-    public function __construct(array $config)
+    /**
+     * [__construct description].
+     *
+     * @author yansongda <me@yansongda.cn>
+     *
+     * @param array $config
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     */
+    public function __construct(array $config, Request $request)
     {
         $this->user_config = new Config($config);
 
         $this->config = [
-            'app_id'      => $this->user_config->get('app_id', ''),
-            'app_secret'     => $this->user_config->get('app_secret', ''),
-            'call_back_url'  => $this->user_config->get('call_back_url', ''),
-          //  'sign_type'  => 'MD5',
-          //  'notify_url' => $this->user_config->get('notify_url', ''),
-          //  'trade_type' => $this->getTradeType(),
+            'app_id' => $this->user_config->get('app_id', ''),
+            'app_secret' => $this->user_config->get('app_secret', ''),
+            'callback_url' => $this->user_config->get('callback_url', ''),
+
+            // 其他可配参数
         ];
 
+        $this->request = $request;
+
     }
 
-    /**
-     * redirect url.
-     *
-     * @author yansongda <me@yansongda.cn>
-     *
-     * @param array|string $config_biz
-     *
-     * @return array|bool
-     */
-    public function redirect($config_biz)
-    {
-        // TODO: Implement redirect() method.
-    }
+     /**
+      * redirect url.
+      *
+      * @author yansongda <me@yansongda.cn>
+      *
+      * @param array $scope
+      * @return void
+      */
+     abstract function redirect(array $scope);
 
     /**
      *  2通过Authorization Code获取Access Token
@@ -104,20 +119,48 @@ abstract class Wechat implements GatewayInterface
      *
      * @return array|bool
      */
-    public function getAccessToken($config_biz)
+    protected function makeState()
     {
-        $url = "https://api.weixin.qq.com/sns/oauth2/access_token";
+        $state = sha1(uniqid(mt_rand(1, 1000000), true));
+        $session = $this->request->getSession();
+        if (is_callable([$session, 'put'])) {
+            $session->put('state', $state);
+        } elseif (is_callable([$session, 'set'])) {
+            $session->set('state', $state);
+        } else {
+            return false;
+        }
+        return $state;
+    }
+
+    /**
+     * get access_token.
+     *
+     * @author yansongda <me@yansongda.cn>
+     *
+     * @return array|bool
+     *
+     * @throws Exception
+     */
+    public function getAccessToken()
+    {
+        $baseUrl = "https://api.weixin.qq.com/sns/oauth2/access_token";
+
+        $param['appid'] = $this->config['app_id'];
+        $param['secret'] = $this->config['app_secret'];
         $param['grant_type'] = "authorization_code";
-
-        $param['appid'] = $this->app_id;
-        $param['secret'] = $this->app_secret;
-
-        $param['code'] = $this->code;
+        $param['code'] = $this->request->get('code');
         $param['grant_type'] = 'authorization_code';
-        $param = http_build_query($param, '', '&');
-        $url = $url . "?" . $param;
-        // halt($url);
-        return $this->getUrl($url);
+        $httpParam = http_build_query($param, '', '&');
+        $url = $baseUrl . "?" . $httpParam;
+        // 使用get请求access-token,返回json数据
+        $responseJson = $this->get($url);
+        $responseArray = json_decode($responseJson, true);
+        if (isset($responseArray['errcode'])) {
+            // 获取access_token接口异常情况  todo 这个要包装成oauth异常，还是不用呢？
+            throw new Exception($responseArray['errcode'], $responseArray['errmsg']);
+        }
+        return $responseArray;
     }
 
     /**
@@ -131,7 +174,7 @@ abstract class Wechat implements GatewayInterface
      */
     public function refreshToken($refreshToken)
     {
-        // TODO: Implement refreshToken() method.
+
     }
 
     /**
@@ -139,80 +182,65 @@ abstract class Wechat implements GatewayInterface
      *
      * @author yansongda <me@yansongda.cn>
      *
-     * @param array $config_biz
-     *
      * @return mixed
+     *
+     * @throws Exception
      */
-    public function getUserInfo(array $config_biz)
-    {
-        // TODO: Implement getUserInfo() method.
-    }
-
-    /**
-     * {@inheritdoc}.
-     */
-    protected function buildAuthUrlFromBase($url, $state)
-    {
-        $query = http_build_query($this->getCodeFields($state), '', '&');
-        return $url.'?'.$query.'#wechat_redirect';
-    }
-
-    /**
-     * {@inheritdoc}.
-     */
-    protected function getCodeFields($state = null)
+    public function getUserInfo()
     {
 
-        return array_merge([
-            'appid' => $this->clientId,
-            'redirect_uri' => $this->redirectUrl,
-            'response_type' => 'code',
-            'scope' => $this->formatScopes($this->scopes, $this->scopeSeparator),
-            'state' => $state ?: md5(time()),
-            'connect_redirect' => 1,
-        ], $this->parameters);
-    }
-
-
-
-
-
-
-
-
-    /**
-     * 4获取qq详细信息
-     * @return bool|mixed
-     * @throws WechatException
-     */
-    public function getUsrInfo()
-    {
-        /* if ($_GET['state'] != $_SESSION['wx_state']) {
-             throw new WechatException('state检验失败！',300001);
-        }*/// 注释这个代表是采用app发送的请求
-
-        if (isset($_GET['code'])==false){
-            throw new WechatException('用户取消授权',300002);
+        // 1验证state
+        // 2验证code 不带则用户取消授权
+        // 3请求这个获取access_token接口后异常的信息有，code过期等。。
+        $state = $this->request->getSession()->get('state');
+        if ($state !== $this->request->get('state')) {
+            throw new Exception('state错误',1000001);
         }
-        $this->code = $_GET['code'];
 
-        $rzt = $this->getAccessToken();
-
-        $data = json_decode($rzt,true);
-        if (empty($data)||isset($data['errcode'])) {
-            throw new WechatException('获取access_token失败');
+        if (is_null($this->request->get('code'))) {
+            throw new Exception('用户取消授权', 300002);
         }
-        $url = "https://api.weixin.qq.com/sns/userinfo";
+        /**
+         * { "access_token":"ACCESS_TOKEN",
+         * "expires_in":7200,
+         * "refresh_token":"REFRESH_TOKEN",
+         * "openid":"OPENID",
+         * "scope":"SCOPE" }
+         */
+        $data = $this->getAccessToken();
+
+        $baseUrl = "https://api.weixin.qq.com/sns/userinfo";
 
         $param['access_token'] = $data['access_token'];
         $param['openid'] = $data['openid'];
-        $param = http_build_query($param, '', '&');
-        $url = $url . "?" . $param;
-        $rzt = $this->getUrl($url);
-        $rzt = json_decode($rzt);
-        //halt($rzt);
-        return $rzt;
+        $httpParam = http_build_query($param, '', '&');
+        $url = $baseUrl . "?" . $httpParam;
+
+        /**
+         * {    "openid":" OPENID",
+         * " nickname": NICKNAME,
+         * "sex":"1",
+         * "province":"PROVINCE"
+         * "city":"CITY",
+         * "country":"COUNTRY",
+         * "headimgurl":    "http://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
+         * "privilege":[ "PRIVILEGE1" "PRIVILEGE2"     ],
+         * "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+         * }
+         */
+        $responseJson = $this->get($url);
+
+        $responseArray = json_decode($responseJson, true);
+
+        if (isset($responseArray['errcode'])) {
+            // 获取user_info接口异常情况  todo 这个要包装成oauth异常，还是不用呢？
+            throw new Exception($responseArray['errcode'], $responseArray['errmsg']);
+        }
+        // 返回用户数据数组
+        return $responseArray;
+
     }
+
 
 
 }

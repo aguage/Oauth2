@@ -10,6 +10,8 @@ namespace Aguage\Oauth2;
 
 use Aguage\Oauth2\Support\Config;
 use Aguage\Oauth2\Exception\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class Oauth2
 {
@@ -29,19 +31,62 @@ class Oauth2
     private $gateways;
 
     /**
+     * @var \Symfony\Component\HttpFoundation\Request
+     */
+    private $request;
+
+    /**
      * construct method.
      *
      * @author JasonYan <me@yansongda.cn>
      *
      * @param array $config
+     *
+     * @param Request $request
      */
-    public function __construct(array $config = [])
+    public function __construct(array $config = [], Request $request = null)
     {
         $this->config = new Config($config);
+
+        if ($request) {
+            $this->setRequest($request);
+        }
     }
 
     /**
-     * set pay's driver.
+     * @return \Symfony\Component\HttpFoundation\Request
+     */
+    public function getRequest()
+    {
+        return $this->request ?: $this->createDefaultRequest();
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return $this
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * Create default request instance.
+     *
+     * @return Request
+     */
+    protected function createDefaultRequest()
+    {
+        $request = Request::createFromGlobals();
+        $session = new Session();
+        $request->setSession($session);
+        return $request;
+    }
+
+    /**
+     * set oauth2's driver.
      *
      * @author JasonYan <me@yansongda.cn>
      *
@@ -61,7 +106,7 @@ class Oauth2
     }
 
     /**
-     * set pay's gateway.
+     * set Oauth2's gateway.
      *
      * @author yansongda <me@yansongda.cn>
      *
@@ -112,6 +157,6 @@ class Oauth2
      */
     protected function build($gateway)
     {
-        return new $gateway($this->config->get($this->drivers));
+        return new $gateway($this->config->get($this->drivers),$this->getRequest());
     }
 }

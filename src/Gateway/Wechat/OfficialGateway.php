@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: MaiShang
- * Date: 5/21/2018
- * Time: 4:21 PM
+ * Date: 5/22/2018
+ * Time: 2:00 PM
  */
 
 namespace Aguage\Oauth2\Gateway\Wechat;
@@ -12,8 +12,7 @@ namespace Aguage\Oauth2\Gateway\Wechat;
 use Aguage\Oauth2\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-
-class WebGateway extends Wechat
+class OfficialGateway extends Wechat
 {
 
     /**
@@ -21,18 +20,15 @@ class WebGateway extends Wechat
      *
      * @author yansongda <me@yansongda.cn>
      *
-     * @param array|string $scope
-     *
-     * @return RedirectResponse
+     * @param array $scope
+     * @return void
      */
-    //1组合url重定向到微信
-    public function redirect(array $scope = ['snsapi_login'])
+    function redirect(array $scope)
     {
 
-
-        $baseUrl = 'https://open.weixin.qq.com/connect/qrconnect';
+        $baseUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize';
         $this->config['scope'] = implode(',',$scope);
-        if ($scope != 'snsapi_login') {
+        if (in_array('snsapi_base',$scope)&&in_array('snsapi_userinfo',$scope)) {
             throw new InvalidArgumentException('暂时不支持的作用域');
         }
 
@@ -51,6 +47,4 @@ class WebGateway extends Wechat
         $response = new RedirectResponse($url);
         return $response->send();
     }
-
-
 }
