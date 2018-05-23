@@ -73,7 +73,6 @@ class AppGateway extends Wechat
         $param['access_token'] = $data['access_token'];
         $param['openid'] = $data['openid'];
         $httpParam = http_build_query($param, '', '&');
-        $url = $baseUrl . "?" . $httpParam;
 
         /**
          * {    "openid":" OPENID",
@@ -87,7 +86,7 @@ class AppGateway extends Wechat
          * "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
          * }
          */
-        $responseJson = $this->get($url);
+        $responseJson = $this->get($baseUrl,$httpParam);
 
         $responseArray = json_decode($responseJson, true);
 
