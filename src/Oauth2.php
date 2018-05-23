@@ -1,9 +1,18 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: MaiShang
+ * User: Aguage
  * Date: 5/18/2018
  * Time: 3:30 PM
+ * Description:
+ *
+ * (c) yansongda <me@yansongda.cn>
+ *
+ * Modified By aguage <mr.huangyouzhi@gmail.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ *
  */
 
 namespace Aguage\Oauth2;
@@ -38,7 +47,7 @@ class Oauth2
     /**
      * construct method.
      *
-     * @author JasonYan <me@yansongda.cn>
+     * @author aguage <mr.huangyouzhi@gmail.com>
      *
      * @param array $config
      *
@@ -54,6 +63,8 @@ class Oauth2
     }
 
     /**
+     * @author aguage <mr.huangyouzhi@gmail.com>
+     *
      * @return \Symfony\Component\HttpFoundation\Request
      */
     public function getRequest()
@@ -62,6 +73,8 @@ class Oauth2
     }
 
     /**
+     * @author aguage <mr.huangyouzhi@gmail.com>
+     *
      * @param \Symfony\Component\HttpFoundation\Request $request
      *
      * @return $this
@@ -74,6 +87,8 @@ class Oauth2
 
     /**
      * Create default request instance.
+     *
+     * @author aguage <mr.huangyouzhi@gmail.com>
      *
      * @return Request
      */
@@ -88,7 +103,7 @@ class Oauth2
     /**
      * set oauth2's driver.
      *
-     * @author JasonYan <me@yansongda.cn>
+     * @author aguage <mr.huangyouzhi@gmail.com>
      *
      * @param string $driver
      *
@@ -108,7 +123,7 @@ class Oauth2
     /**
      * set Oauth2's gateway.
      *
-     * @author yansongda <me@yansongda.cn>
+     * @author aguage <mr.huangyouzhi@gmail.com>
      *
      * @param string $gateway
      *
@@ -128,7 +143,7 @@ class Oauth2
     /**
      * create oauth2's gateway name.
      *
-     * @author yansongda <me@yansongda.cn>
+     * @author aguage <mr.huangyouzhi@gmail.com>
      *
      * @param string $gateway
      *
@@ -149,7 +164,7 @@ class Oauth2
     /**
      * build oauth2's gateway.
      *
-     * @author JasonYan <me@yansongda.cn>
+     * @author aguage <mr.huangyouzhi@gmail.com>
      *
      * @param string $gateway
      *
@@ -157,6 +172,6 @@ class Oauth2
      */
     protected function build($gateway)
     {
-        return new $gateway($this->config->get($this->drivers),$this->getRequest());
+        return new $gateway($this->config->get($this->drivers), $this->getRequest());
     }
 }
