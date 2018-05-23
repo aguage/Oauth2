@@ -9,6 +9,7 @@
 namespace Aguage\Oauth2\Gateway\Wechat;
 
 
+use Aguage\Oauth2\Exception\Exception;
 use Aguage\Oauth2\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -18,10 +19,11 @@ class OfficialGateway extends Wechat
     /**
      * redirect url.
      *
-     * @author yansongda <me@yansongda.cn>
+     * @author aguage <mr.huangyouzhi@gmail.com>
      *
      * @param array $scope
-     * @return void
+     *
+     * @return RedirectResponse
      */
     function redirect(array $scope)
     {
@@ -47,4 +49,7 @@ class OfficialGateway extends Wechat
         $response = new RedirectResponse($url);
         return $response->send();
     }
+
+
+
 }
