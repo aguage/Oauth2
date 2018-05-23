@@ -23,7 +23,7 @@ interface GatewayInterface
     /**
      * redirect url.
      *
-     * @author yansongda <me@yansongda.cn>
+     * @author aguage <mr.huangyouzhi@gmail.com>
      *
      * @param array $scope
      *
@@ -34,10 +34,12 @@ interface GatewayInterface
     /**
      * get User.
      *
-     * @author yansongda <me@yansongda.cn>
+     * @author aguage <mr.huangyouzhi@gmail.com>
      *
      *
      * @return mixed
+     *
+     * @throws \Aguage\Oauth2\Exception\Exception
      */
     public function getUserInfo();
 
