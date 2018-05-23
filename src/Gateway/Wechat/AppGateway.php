@@ -93,7 +93,7 @@ class AppGateway extends Wechat
 
         if (isset($responseArray['errcode'])) {
             // 获取user_info接口异常情况  todo 这个要包装成oauth异常，还是不用呢？
-            throw new Exception($responseArray['errcode'], $responseArray['errmsg']);
+            throw new Exception( $responseArray['errmsg'],$responseArray['errcode']);
         }
         // 返回用户数据数组
         return $responseArray;
