@@ -94,15 +94,15 @@ abstract class Wechat implements GatewayInterface
 
     }
 
-     /**
-      * redirect url.
-      *
-      * @author yansongda <me@yansongda.cn>
-      *
-      * @param array $scope
-      * @return void
-      */
-     abstract function redirect(array $scope);
+    /**
+     * redirect url.
+     *
+     * @author aguage <mr.huangyouzhi@gmail.com>
+     *
+     * @param array $scope
+     * @return void
+     */
+    abstract function redirect(array $scope);
 
     /**
      *  2通过Authorization Code获取Access Token
@@ -144,26 +144,24 @@ abstract class Wechat implements GatewayInterface
         $param['code'] = $this->request->get('code');
         $param['grant_type'] = 'authorization_code';
         $httpParam = http_build_query($param, '', '&');
-       // $url = $baseUrl . "?" . $httpParam;
 
         /**
          * {
-        access_token: "10_MehlehkYhzHVDiNDR8PUjKbbhrLh3ddpks0E3l-GrDLQPHSTdy0UpFCEIOPQgc5v-c3THHHc26-60oAK8CJn4X8dgUI2ILCR2dUkBf5mj3Y",
-        expires_in: 7200,
-        refresh_token: "10_1oX5SNumedmPwd4h91v-MFhxPRIKZDwAAlEzBoi43dedMONvBcDJqj5iQ3_B16pwVboOWwUgwEM4XULNehUFLyH3GKcix6f0iZo1j_Es8yQ",
-        openid: "oEJiY1XU9tevAmReBIPK8X-C8xfg",
-        scope: "snsapi_userinfo",
-        unionid: "ofPjhwKcNXQITzwEYsMMpht53grg"
-        }
+         * access_token: "10_MehlehkYhzHVDiNDR8PUjKbbhrLh3ddpks0E3l-GrDLQPHSTdy0UpFCEIOPQgc5v-c3THHHc26-60oAK8CJn4X8dgUI2ILCR2dUkBf5mj3Y",
+         * expires_in: 7200,
+         * refresh_token: "10_1oX5SNumedmPwd4h91v-MFhxPRIKZDwAAlEzBoi43dedMONvBcDJqj5iQ3_B16pwVboOWwUgwEM4XULNehUFLyH3GKcix6f0iZo1j_Es8yQ",
+         * openid: "oEJiY1XU9tevAmReBIPK8X-C8xfg",
+         * scope: "snsapi_userinfo",
+         * unionid: "ofPjhwKcNXQITzwEYsMMpht53grg"
+         * }
          */
-      //  var_dump($url);exit;
         // 使用get请求access-token,返回json数据
-        $responseJson = $this->get($baseUrl,$httpParam);
+        $responseJson = $this->get($baseUrl, $httpParam);
 
         $responseArray = json_decode($responseJson, true);
         if (isset($responseArray['errcode'])) {
             // 获取access_token接口异常情况  todo 这个要包装成oauth异常，还是不用呢？
-            throw new Exception( $responseArray['errmsg'],$responseArray['errcode']);
+            throw new Exception($responseArray['errmsg'], $responseArray['errcode']);
         }
         return $responseArray;
     }
@@ -173,9 +171,8 @@ abstract class Wechat implements GatewayInterface
      *
      * @author aguage <mr.huangyouzhi@gmail.com>
      *
-     * @param string $out_trade_no
-     *
-     * @return array|bool
+     * @param $refreshToken
+     * @return void
      */
     public function refreshToken($refreshToken)
     {
@@ -199,7 +196,7 @@ abstract class Wechat implements GatewayInterface
         // 3请求这个获取access_token接口后异常的信息有，code过期等。。
         $state = $this->request->getSession()->get('state');
         if ($state !== $this->request->get('state')) {
-            throw new Exception('state错误',1000001);
+            throw new Exception('state错误', 1000001);
         }
 
         if (is_null($this->request->get('code'))) {
@@ -234,19 +231,18 @@ abstract class Wechat implements GatewayInterface
          * "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
          * }
          */
-        $responseJson = $this->get($baseUrl,$httpParam);
+        $responseJson = $this->get($baseUrl, $httpParam);
 
         $responseArray = json_decode($responseJson, true);
 
         if (isset($responseArray['errcode'])) {
             // 获取user_info接口异常情况  todo 这个要包装成oauth异常，还是不用呢？
-            throw new Exception($responseArray['errmsg'],$responseArray['errcode']);
+            throw new Exception($responseArray['errmsg'], $responseArray['errcode']);
         }
         // 返回用户数据数组
         return $responseArray;
 
     }
-
 
 
 }
