@@ -19,7 +19,7 @@ namespace Aguage\Oauth2\Gateway\Wechat;
 
 
 use Aguage\Oauth2\Exception\Exception;
-use Aguage\Oauth2\Support\WXBizDataCrypt;
+use Aguage\Oauth2\Support\WxBizDataCrypt;
 
 class MiniGateway extends Wechat
 {
@@ -78,7 +78,7 @@ class MiniGateway extends Wechat
          * hPw0cNVuEv7N8Ea9jepg1Q==
          */
         // 解密用户数据
-        $pc = new WXBizDataCrypt($this->config['app_id'], $responseArray['session_key']);
+        $pc = new WxBizDataCrypt($this->config['app_id'], $responseArray['session_key']);
         $decryptData = $pc->decryptData($this->request->get('encrypted_data'), $this->request->get('iv'));
 
         /**

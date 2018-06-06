@@ -11,7 +11,7 @@ namespace Aguage\Oauth2\Support;
 
 use Aguage\Oauth2\Exception\Exception;
 
-class WXBizDataCrypt
+class WxBizDataCrypt
 {
     private $appid;
     private $sessionKey;
@@ -53,7 +53,7 @@ class WXBizDataCrypt
         $result = openssl_decrypt($aesCipher, "AES-128-CBC", $aesKey, 1, $aesIV);
 
         $dataObj = json_decode($result);
-        var_dump($dataObj);
+
         if ($dataObj == NULL) {
             throw new Exception('解密后得到的buffer非法', -40003);
         }
