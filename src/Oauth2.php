@@ -67,7 +67,7 @@ class Oauth2
      *
      * @return \Symfony\Component\HttpFoundation\Request
      */
-    public function getRequest()
+    protected function getRequest()
     {
         return $this->request ?: $this->createDefaultRequest();
     }
