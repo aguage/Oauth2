@@ -57,7 +57,7 @@ class Oauth2
     {
         $this->config = new Config($config);
 
-        if ($request) {
+        if (!is_null($request)) {
             $this->setRequest($request);
         }
     }
