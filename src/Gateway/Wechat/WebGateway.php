@@ -76,10 +76,11 @@ class WebGateway extends Wechat
         // 1验证state
         // 2验证code 不带则用户取消授权
         // 3请求这个获取access_token接口后异常的信息有，code过期等。。
-        $state = $this->request->getSession()->get('state');
+        // 这边暂时注释，以后要写个配置来配置这个选项
+       /* $state = $this->request->getSession()->get('state');
         if ($state !== $this->request->get('state')) {
             throw new Exception('state错误', 1000001);
-        }
+        }*/
 
         if (is_null($this->request->get('code'))) {
             throw new Exception('用户取消授权', 300002);
