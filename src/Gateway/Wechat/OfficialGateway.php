@@ -60,7 +60,6 @@ class OfficialGateway extends Wechat
         $url = $baseUrl . '?' . $httpParam . '#wechat_redirect';
 
         $response = new RedirectResponse($url);
-        var_dump($response->getTargetUrl());exit;
         return $response->send();
     }
 

@@ -43,5 +43,15 @@ interface GatewayInterface
      */
     public function getUserInfo();
 
+    /**
+     * get AccessToken.
+     *
+     * @author aguage <mr.huangyouzhi@gmail.com>
+     *
+     *
+     * @return mixed
+     *
+     * @throws \Aguage\Oauth2\Exception\Exception
+     */
     public function getAccessToken();
 }
