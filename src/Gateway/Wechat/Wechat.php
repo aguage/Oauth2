@@ -86,7 +86,7 @@ abstract class Wechat implements GatewayInterface
             'app_id' => $this->user_config->get('app_id', ''),
             'app_secret' => $this->user_config->get('app_secret', ''),
             'callback_url' => $this->user_config->get('callback_url', ''),
-
+            'base_callback_url' => $this->user_config->get('base_callback_url', ''),
             // 其他可配参数
         ];
 
@@ -134,7 +134,7 @@ abstract class Wechat implements GatewayInterface
      *
      * @throws Exception
      */
-    protected function getAccessToken()
+    public function getAccessToken()
     {
         $baseUrl = "https://api.weixin.qq.com/sns/oauth2/access_token";
 

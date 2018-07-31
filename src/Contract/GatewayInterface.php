@@ -43,5 +43,5 @@ interface GatewayInterface
      */
     public function getUserInfo();
 
-
+    public function getAccessToken();
 }

@@ -48,14 +48,19 @@ class OfficialGateway extends Wechat
 
         $param['appid'] = $this->config['app_id'];
         $param['redirect_uri'] = $this->config['callback_url'];
-        $param['response_type'] = 'code';
         $param['scope'] = $this->config['scope'];
+        $param['response_type'] = 'code';
+        if ($this->config['scope']=='snsapi_base'){
+            $param['redirect_uri'] = $this->config['base_callback_url'];
+            $param['scope'] = $this->config['scope'];
+        }
         $param['state'] = $state;
 
         $httpParam = http_build_query($param, '', '&');
         $url = $baseUrl . '?' . $httpParam . '#wechat_redirect';
 
         $response = new RedirectResponse($url);
+        var_dump($response->getTargetUrl());exit;
         return $response->send();
     }
 
